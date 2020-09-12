@@ -34,7 +34,6 @@
 
 import firebase from '../../firebase'
 
-
 export default {
   data: () => ({
     constellations: []

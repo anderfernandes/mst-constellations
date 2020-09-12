@@ -81,7 +81,7 @@
       </div>
       <!--- Buttons --->
       <div class="flex -mx-3 mb-6">
-        <div class="inline-flex rounded-md shadow w-full">
+        <div class="inline-flex rounded-md shadow w-full" @click.prevent="updateConstellation">
           <a href="#" class="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base leading-6 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:shadow-outline transition duration-150 ease-in-out w-full">
             Save
           </a>
@@ -97,8 +97,13 @@
 </template>
 
 <script>
+
+import firebase from '../../../firebase'
+
+const constellation = firebase.collection('constellations')
+
 export default {
-  props: ['constellation'],
+  props: ['id'],
   data: () => ({
     name: '',
     scientificName: '',
@@ -107,14 +112,33 @@ export default {
     bestViewedOn: '',
     loading: true,
   }),
-  mounted() {
+  created() {
     this.loading = true
-    //this.name = this.constellation.name
-    //this.scientificName = this.constellation.scientificName
-    Object.assign(this, this.constellation) 
-    //this.seasons = this.constellation.seasons[0]
-    //this.bestViewedOn = this.constellation.bestViewedOn
+    if (this.id)
+      this.getConstellation()
     this.loading = false
+  },
+  methods: {
+    getConstellation() { 
+      constellation.doc(this.id).get().then(doc => {
+        this.name = doc.data().name
+        this.scientificName = doc.data().scientificName
+        this.months = doc.data().months[0]
+        this.seasons = doc.data().seasons[0]
+        this.bestViewedOn = doc.data().bestViewedOn.split('T')[0]
+      }).catch(error => alert(error))
+    },
+    updateConstellation() {
+      this.loading = true
+      constellation.doc(this.id).set({
+        name: this.name,
+        scientificName: this.scientificName,
+        months: [ this.months ],
+        seasons: [ this.seasons ],
+        bestViewedOn: new Date(this.bestViewedOn).toISOString()
+      }).then(() => alert(`${this.name} saved successfully!`))
+      this.loading = false
+    }
   }
 }
 </script>
