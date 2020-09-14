@@ -1,5 +1,5 @@
 <template>
-  <div id="home" class="flex flex-col w/1/3">
+  <div id="home" class="flex flex-col w/1/3" v-if="!loading">
     <router-link :to="`${constellation.id}/edit`" class="flex w-full h-full py-2" v-for="constellation in constellations" :key="constellation.id">
       <div class="border-l border-t border-b h-auto w-48 flex-none bg-cover rounded-t rounded-t-none rounded-l text-center overflow-hidden" :style="`background-image: url('${constellation.pictures[0]}')`" title="Woman holding a mug"></div>
       <div class="border-r border-b border-gray-400 w-full border-l-0 border-t border-gray-400 bg-white rounded-b rounded-b-none rounded-r p-4 flex flex-col">
@@ -36,13 +36,20 @@ import firebase from '../../firebase'
 
 export default {
   data: () => ({
-    constellations: []
+    constellations: [],
+    loading: true,
   }),
   name: 'Home',
-  created() {
+  mounted() {
+    this.loading = true
     firebase.collection('constellations')
       .get()
       .then(querySnapshot => querySnapshot.forEach(doc => this.constellations.push({id: doc.id, ...doc.data()})))
+      .then(() => {
+        localStorage.setItem('count', this.constellations.length)
+        this.loading = false
+      })
+    
   }
 }
 </script>

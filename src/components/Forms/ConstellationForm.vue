@@ -29,7 +29,7 @@
           </label>
           <div class="relative">
             <select v-model="months" class="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-state">
-              <option hidden></option>
+              <option disabled value="">Select a month</option>
               <option>January</option>
               <option>February</option>
               <option>March</option>
@@ -57,7 +57,7 @@
           </label>
           <div class="relative">
             <select v-model="seasons" class="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-state">
-              <option hidden></option>
+              <option disabled value="">Select a season</option>
               <option>Fall</option>
               <option>Winter</option>
               <option>Spring</option>
@@ -81,12 +81,12 @@
       </div>
       <!--- Buttons --->
       <div class="flex -mx-3 mb-6">
-        <div class="inline-flex rounded-md shadow w-full" @click.prevent="updateConstellation">
+        <div class="inline-flex rounded-md shadow w-full" @click.prevent="submit">
           <a href="#" class="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base leading-6 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:shadow-outline transition duration-150 ease-in-out w-full">
             Save
           </a>
         </div>
-        <div class="ml-3 inline-flex rounded-md shadow w-full">
+        <div class="ml-3 inline-flex rounded-md shadow w-full" @click.prevent="reset">
           <a href="#" class="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base leading-6 font-medium rounded-md text-indigo-600 bg-white hover:text-indigo-500 focus:outline-none focus:shadow-outline transition duration-150 ease-in-out w-full">
             Start Over
           </a>
@@ -111,6 +111,7 @@ export default {
     seasons: '',
     bestViewedOn: '',
     loading: true,
+    pictures: [""],
   }),
   created() {
     this.loading = true
@@ -119,6 +120,7 @@ export default {
     this.loading = false
   },
   methods: {
+    
     getConstellation() { 
       constellation.doc(this.id).get().then(doc => {
         this.name = doc.data().name
@@ -126,8 +128,10 @@ export default {
         this.months = doc.data().months[0]
         this.seasons = doc.data().seasons[0]
         this.bestViewedOn = doc.data().bestViewedOn.split('T')[0]
+        this.pictures = doc.data().pictures || [""]
       }).catch(error => alert(error))
     },
+    
     updateConstellation() {
       this.loading = true
       constellation.doc(this.id).set({
@@ -135,9 +139,35 @@ export default {
         scientificName: this.scientificName,
         months: [ this.months ],
         seasons: [ this.seasons ],
-        bestViewedOn: new Date(this.bestViewedOn).toISOString()
-      }).then(() => alert(`${this.name} saved successfully!`))
+        bestViewedOn: new Date(this.bestViewedOn).toISOString(),
+        pictures: this.pictures,
+      }).then(() => alert(`${this.name} updated successfully!`))
       this.loading = false
+    },
+    
+    saveConstellation() {
+      this.loading = true
+      constellation.add({
+        name: this.name,
+        scientificName: this.scientificName,
+        months: [ this.months ],
+        seasons: [ this.seasons ],
+        bestViewedOn: new Date(this.bestViewedOn).toISOString(),
+        pictures: this.pictures,
+      }).then(() => alert(`${this.name} added successfully!`))
+    },
+  
+    submit() {
+      
+      this.id
+        ? this.updateConstellation()
+        : this.saveConstellation()
+
+      this.getConstellation()
+    },
+
+    reset() {
+      document.querySelector('form').reset()
     }
   }
 }
