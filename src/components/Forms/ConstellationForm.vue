@@ -142,11 +142,15 @@ export default {
         bestViewedOn: new Date(this.bestViewedOn).toISOString(),
         pictures: this.pictures,
       }).then(() => alert(`${this.name} updated successfully!`))
+      .then(() => this.$router.push("/"))
+      .catch(error => alert(`Failed to save constellation: ${error}`))
       this.loading = false
     },
     
     saveConstellation() {
+      
       this.loading = true
+      
       constellation.add({
         name: this.name,
         scientificName: this.scientificName,
@@ -155,6 +159,9 @@ export default {
         bestViewedOn: new Date(this.bestViewedOn).toISOString(),
         pictures: this.pictures,
       }).then(() => alert(`${this.name} added successfully!`))
+      .then(() => this.$store.commit("INCREMENT_COUNT"))
+      .then(() => this.$router.push("/"))
+      .catch(error => alert(`Failed to save constellation: ${error}`))
     },
   
     submit() {
@@ -163,7 +170,6 @@ export default {
         ? this.updateConstellation()
         : this.saveConstellation()
 
-      this.getConstellation()
     },
 
     reset() {

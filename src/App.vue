@@ -39,8 +39,10 @@
 <script>
 
 export default {
-  data: () => ({
-    count: localStorage.getItem('count')
-  }),
+  computed: {
+    count() {
+      return this.$store.state.count
+    }
+  }
 }
 </script>

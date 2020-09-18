@@ -46,7 +46,7 @@ export default {
       .get()
       .then(querySnapshot => querySnapshot.forEach(doc => this.constellations.push({id: doc.id, ...doc.data()})))
       .then(() => {
-        localStorage.setItem('count', this.constellations.length)
+        this.$store.commit("SET_COUNT", this.constellations.length)
         this.loading = false
       })
     
